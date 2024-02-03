@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { z } from '../../lib/pt-zod'
+import { z } from '../lib/pt-zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 
 export default function LoginForm() {
     const formSchema = z.object({
@@ -49,7 +50,7 @@ export default function LoginForm() {
                                 <FormItem>
                                     <FormLabel>Senha</FormLabel>
                                     <FormControl>
-                                        <Input
+                                        <PasswordInput
                                             placeholder="Digite sua senha..." {...field} />
                                     </FormControl>
                                     <FormMessage />

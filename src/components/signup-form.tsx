@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { z } from '../../lib/pt-zod'
+import { z } from '../lib/pt-zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { DateInput } from '@/components/ui/date-input'
 import { ComboboxForm } from '@/components/ui/combobox-form'
 import brasilStates from '@/data/estados-brasil'
+import { PasswordInput } from '@/components/ui/password-input'
 
 export default function SignUpForm() {
     const statesOptions = brasilStates.map((state) => ({
@@ -37,7 +38,6 @@ export default function SignUpForm() {
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         alert(JSON.stringify(values, null, 2))
-        console.log(values)
     }
 
     return (
@@ -94,7 +94,7 @@ export default function SignUpForm() {
                                 <FormItem>
                                     <FormLabel>Senha</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <PasswordInput {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -107,7 +107,7 @@ export default function SignUpForm() {
                                 <FormItem>
                                     <FormLabel>Repita a senha</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <PasswordInput {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
