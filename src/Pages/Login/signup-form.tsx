@@ -6,8 +6,15 @@ import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { DateInput } from '@/components/ui/date-input'
+import { ComboboxForm } from '@/components/ui/combobox-form'
+import brasilStates from '@/data/estados-brasil'
 
 export default function SignUpForm() {
+    const statesOptions = brasilStates.map((state) => ({
+        label: state.nome,
+        value: state.sigla,
+    })).sort((a, b) => a.label.localeCompare(b.label))
+
     const formSchema = z.object({
         email: z.string().email(),
         firstName: z.string().min(2).max(50),
@@ -119,18 +126,11 @@ export default function SignUpForm() {
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="state"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Estado</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                        <ComboboxForm
+                            form={form}
+                            label='Estado'
+                            fieldName='state'
+                            options={statesOptions}
                         />
                         <FormField
                             control={form.control}
