@@ -114,16 +114,18 @@ export function ComboboxForm({ label, fieldName, className, form, options }: Com
                                         variant="outline"
                                         role="combobox"
                                         className={cn(
-                                            'w-full justify-between',
+                                            'w-full px-1.5 flex flex-row items-center justify-between',
                                             !field.value && 'text-muted-foreground'
                                         )}
                                     >
-                                        {field.value
-                                            ? options.find(
-                                                (option) => option.value === field.value
-                                            )?.label
-                                            : 'Selecione'}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        <p className='flex-1 overflow-hidden text-left text-ellipsis'>
+                                            {field.value
+                                                ? options.find(
+                                                    (option) => option.value === field.value
+                                                )?.label
+                                                : 'Selecione'}
+                                        </p>
+                                        <ChevronsUpDown className="ml-0.5 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </FormControl>
                             </DrawerTrigger>

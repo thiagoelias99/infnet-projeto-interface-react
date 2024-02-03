@@ -9,6 +9,8 @@ import { DateInput } from '@/components/ui/date-input'
 import { ComboboxForm } from '@/components/ui/combobox-form'
 import brasilStates from '@/data/estados-brasil'
 import { PasswordInput } from '@/components/ui/password-input'
+import { useEffect } from 'react'
+import useBrazilState from '@/hooks/useCity.ts'
 
 export default function SignUpForm() {
     const statesOptions = brasilStates.map((state) => ({
@@ -39,6 +41,12 @@ export default function SignUpForm() {
     function onSubmit(values: z.infer<typeof formSchema>) {
         alert(JSON.stringify(values, null, 2))
     }
+
+    const { data: cities, refetch } = useBrazilState(form.getValues().state)
+
+    useEffect(() => {
+        refetch()
+    }, [form.watch().state])
 
     return (
         <Card className='mt-8 w-[80%]'>
@@ -132,18 +140,11 @@ export default function SignUpForm() {
                             fieldName='state'
                             options={statesOptions}
                         />
-                        <FormField
-                            control={form.control}
-                            name="city"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Cidade</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                        <ComboboxForm
+                            form={form}
+                            label='Cidade'
+                            fieldName='city'
+                            options={cities?.map(city => ({ label: city.nome, value: city.id.toString() })) || []}
                         />
                         <Button
                             type="submit"
