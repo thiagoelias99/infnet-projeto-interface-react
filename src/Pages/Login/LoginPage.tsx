@@ -13,8 +13,8 @@ export default function LoginPage() {
             </div>
             <div className='w-full flex-1 bg-background flex flex-col items-center justify-start'>
                 {showSignUp ? <SignUpForm /> : <LoginForm />}
-                <p className='text-base mt-4'>{showSignUp ? 'Já possui conta?' : 'Não possui conta?'} <span
-                    className='text-lg font-bold text-primary underline'
+                <p className='text-base my-4'>{showSignUp ? 'Já possui conta?' : 'Não possui conta?'} <span
+                    className='text-lg font-bold text-primary underline cursor-pointer'
                     onClick={() => setShowSignUp(!showSignUp)}
                 >{showSignUp ? 'Entre' : 'Cadastre'}</span>
                 </p>

@@ -11,6 +11,7 @@ import brasilStates from '@/data/estados-brasil'
 import { PasswordInput } from '@/components/ui/password-input'
 import { useEffect } from 'react'
 import useBrazilState from '@/hooks/useCity.ts'
+import { isBefore } from 'date-fns'
 
 export default function SignUpForm() {
     const statesOptions = brasilStates.map((state) => ({
@@ -24,9 +25,9 @@ export default function SignUpForm() {
         lastName: z.string().min(2).max(50),
         password: z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W+)(.{6,30})$/, 'A senha deve conter no mínimo 6 dígitos sendo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial'),
         confirmPassword: z.string(),
-        birthDate: z.string().refine((data) => new Date(data), {
-            message: 'Data de nascimento inválida',
-        }),
+        birthDate: z.string().transform((data) => new Date(data)).refine((data) => {
+            return data instanceof Date && isBefore(data, new Date())
+        }, 'Data deve ser anterior a data atual').transform((data) => data.toISOString()),
         country: z.string().min(2).max(50).default('Brasil'),
         state: z.string().min(2).max(50),
         city: z.string().min(2).max(50),
@@ -47,6 +48,17 @@ export default function SignUpForm() {
     useEffect(() => {
         refetch()
     }, [form.watch().state])
+
+    useEffect(() => {
+        if (form.getValues().password === form.getValues().confirmPassword) {
+            form.clearErrors('confirmPassword')
+        } else {
+            form.setError('confirmPassword', {
+                type: 'manual',
+                message: 'As senhas não coincidem',
+            })
+        }
+    }, [form.watch().password, form.watch().confirmPassword])
 
     return (
         <Card className='mt-8 w-[80%]'>
@@ -150,7 +162,7 @@ export default function SignUpForm() {
                             type="submit"
                             variant='default'
                             className='w-full mt-4 col-span-2'
-                        >Entrar</Button>
+                        >Cadastrar</Button>
                     </form>
                 </Form>
             </CardContent>
