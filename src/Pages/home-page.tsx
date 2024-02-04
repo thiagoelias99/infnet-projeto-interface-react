@@ -2,19 +2,22 @@ import useToken from '@/hooks/useToken'
 import useUserProfile from '@/hooks/useUserProfile'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2Icon, PlusIcon } from 'lucide-react'
+import { Loader2Icon, PlusIcon, Trash2Icon } from 'lucide-react'
 import logo from '../assets/logo.jpeg'
-import useTodoList, { TodoCreate, TodoUpdate } from '@/hooks/useTodoList'
+import useTodoList, { Todo, TodoCreate, TodoUpdate } from '@/hooks/useTodoList'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { CreateTodoDialog } from '@/components/create-todo-dialog'
+import { DeleteTodoDialog } from '@/components/delete-todo-dialog'
 
 export default function HomePage() {
     const [showDialog, setShowDialog] = useState(false)
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [todo, setTodo] = useState<Todo | null>(null)
     const { token } = useToken()
     const navigate = useNavigate()
     const { data: userData } = useUserProfile(token)
-    const { todoList, updateTodo, createTodo } = useTodoList(token)
+    const { todoList, updateTodo, createTodo, deleteTodo } = useTodoList(token)
 
     useEffect(() => {
         console.log('Token:', token)
@@ -31,6 +34,15 @@ export default function HomePage() {
 
     function handleCreateTodo(todo: TodoCreate) {
         createTodo(todo)
+    }
+
+    function handleDeleteButton(todo: Todo) {
+        setTodo(todo)
+        setShowDeleteDialog(true)
+    }
+
+    function handleDeleteTodo(id: string) {
+        deleteTodo(id)
     }
 
     return (
@@ -77,6 +89,11 @@ export default function HomePage() {
                                             <h3 className='font-semibold'>{todo.title}</h3>
                                             <p className='text-xs text-muted-foreground text-ellipsis'>{todo.description}</p>
                                         </div>
+                                        <Trash2Icon
+                                            size={20}
+                                            className='text-destructive'
+                                            onClick={() => handleDeleteButton(todo)}
+                                        />
                                     </div>
                                 )
                             })}
@@ -88,6 +105,12 @@ export default function HomePage() {
                 open={showDialog}
                 onOpenChange={() => setShowDialog(!showDialog)}
                 createFunction={handleCreateTodo}
+            />
+            <DeleteTodoDialog
+                open={showDeleteDialog}
+                onOpenChange={() => setShowDeleteDialog(!showDeleteDialog)}
+                deleteFunction={handleDeleteTodo}
+                todo={todo}
             />
         </main>
     )
