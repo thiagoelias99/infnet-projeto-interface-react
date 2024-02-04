@@ -12,6 +12,7 @@ import { useToast } from './ui/use-toast'
 import { Loader2Icon } from 'lucide-react'
 import { Checkbox } from './ui/checkbox'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function LoginForm() {
     const formSchema = z.object({
@@ -22,6 +23,7 @@ export default function LoginForm() {
     const [keepConnected, setKeepConnected] = useState(false)
 
     const { toast } = useToast()
+    const navigate = useNavigate()
 
     const { mutate, isLoading } = useMutation({
         mutationFn: (values: z.infer<typeof formSchema>) => {
@@ -42,6 +44,8 @@ export default function LoginForm() {
                 variant: 'default',
                 title: 'Login realizado com sucesso!',
             })
+
+            navigate('/')
         },
         onError: (error) => {
             localStorage.removeItem('token')
