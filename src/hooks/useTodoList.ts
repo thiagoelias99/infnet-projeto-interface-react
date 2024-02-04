@@ -13,7 +13,10 @@ export interface Todo {
     description: string
 }
 
-export interface TodoCreate extends Omit<Todo, 'id'> { }
+export interface TodoCreate {
+    title: string
+    description?: string
+}
 
 export interface TodoUpdate extends Partial<Todo> {
     id: string
@@ -30,12 +33,21 @@ const useTodoList = (token: string | null | undefined) => {
     }, {
         enabled: !!token,
         refetchOnWindowFocus: true,
-        refetchInterval: 5000
+        refetchInterval: 60000
     })
 
     const { mutate: createTodo } = useMutation({
         mutationFn: async (todo: TodoCreate) => {
-            const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/todos`, todo, config)
+            const normalizedTodo: TodoCreate = {
+                title: todo.title,
+                description: todo.description
+            }
+
+            if (!normalizedTodo.description) {
+                delete normalizedTodo.description
+            }
+
+            const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/todos`, normalizedTodo, config)
             return response.data
         },
         onError: (error: AxiosError) => {

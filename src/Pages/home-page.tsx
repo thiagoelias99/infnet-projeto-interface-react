@@ -1,18 +1,20 @@
 import useToken from '@/hooks/useToken'
 import useUserProfile from '@/hooks/useUserProfile'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2Icon } from 'lucide-react'
+import { Loader2Icon, PlusIcon } from 'lucide-react'
 import logo from '../assets/logo.jpeg'
-import useTodoList, { TodoUpdate } from '@/hooks/useTodoList'
+import useTodoList, { TodoCreate, TodoUpdate } from '@/hooks/useTodoList'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { CreateTodoDialog } from '@/components/create-todo-dialog'
 
 export default function HomePage() {
+    const [showDialog, setShowDialog] = useState(false)
     const { token } = useToken()
     const navigate = useNavigate()
     const { data: userData } = useUserProfile(token)
-    const { todoList, updateTodo } = useTodoList(token)
+    const { todoList, updateTodo, createTodo } = useTodoList(token)
 
     useEffect(() => {
         console.log('Token:', token)
@@ -25,6 +27,10 @@ export default function HomePage() {
 
     function handleUpdateTodo(todo: TodoUpdate) {
         updateTodo({ ...todo, completed: !todo.completed })
+    }
+
+    function handleCreateTodo(todo: TodoCreate) {
+        createTodo(todo)
     }
 
     return (
@@ -44,8 +50,10 @@ export default function HomePage() {
                     >{`Olá ${userData.firstName} ${userData.lastName}`}</p>
                     <div className='w-full mt-4 border-2 border-primary rounded flex flex-col'>
                         <div className='w-full flex p-2 items-center justify-between bg-primary'>
-                            <h2 className='text-primary-foreground font-semibold '>Meus To-Dos</h2>
-                            <p className='text-primary-foreground font-semibold mr-4'>{todoList?.count || 0}</p>
+                            <h2 className='text-primary-foreground font-semibold '>{`Meus To-Dos (${todoList?.count || 0})`}</h2>
+                            <PlusIcon
+                                onClick={() => setShowDialog(true)}
+                                className='text-primary-foreground mx-1' />
                         </div>
                         {todoList?.count === 0 && (
                             <div className='p-2 w-full flex flex-col items-center justify-start'>
@@ -53,10 +61,11 @@ export default function HomePage() {
                                 <Button
                                     variant='default'
                                     className='mt-4'
+                                    onClick={() => setShowDialog(true)}
                                 >Que tal cadastrar um</Button>
                             </div>
                         )}
-                        <div className='p-2'>
+                        <div className='px-2 py-4 w-full flex flex-col gap-4'>
                             {todoList?.items.map(todo => {
                                 return (
                                     <div key={todo.id} className='w-full flex items-center justify-start gap-4'>
@@ -75,6 +84,11 @@ export default function HomePage() {
                     </div>
                 </div>
             )}
+            <CreateTodoDialog
+                open={showDialog}
+                onOpenChange={() => setShowDialog(!showDialog)}
+                createFunction={handleCreateTodo}
+            />
         </main>
     )
 }
