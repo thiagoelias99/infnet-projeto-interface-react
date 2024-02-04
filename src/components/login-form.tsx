@@ -13,6 +13,7 @@ import { Loader2Icon } from 'lucide-react'
 import { Checkbox } from './ui/checkbox'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import useToken from '@/hooks/useToken'
 
 export default function LoginForm() {
     const formSchema = z.object({
@@ -21,6 +22,7 @@ export default function LoginForm() {
     })
 
     const [keepConnected, setKeepConnected] = useState(false)
+    const { setToken } = useToken()
 
     const { toast } = useToast()
     const navigate = useNavigate()
@@ -45,10 +47,14 @@ export default function LoginForm() {
                 title: 'Login realizado com sucesso!',
             })
 
+            setToken(token)
+
             navigate('/')
         },
         onError: (error) => {
             localStorage.removeItem('token')
+            sessionStorage.removeItem('token')
+            setToken(null)
             console.log(error)
             if (error instanceof AxiosError) {
                 if (error.response?.data.message === 'Email or password invalid') {
