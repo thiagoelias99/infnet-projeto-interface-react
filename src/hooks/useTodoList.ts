@@ -6,16 +6,16 @@ interface TodoListResponse {
     items: Todo[]
 }
 
-interface Todo {
+export interface Todo {
     id: string
     title: string
     completed: boolean
     description: string
 }
 
-interface TodoCreate extends Omit<Todo, 'id'> { }
+export interface TodoCreate extends Omit<Todo, 'id'> { }
 
-interface TodoUpdate extends Partial<Todo> {
+export interface TodoUpdate extends Partial<Todo> {
     id: string
 }
 
@@ -24,13 +24,13 @@ const useTodoList = (token: string | null | undefined) => {
         headers: { Authorization: 'Bearer ' + token }
     }
 
-    const { data: todoList } = useQuery<TodoListResponse, AxiosError>([`user_${token}`, token], async () => {
+    const { data: todoList, refetch } = useQuery<TodoListResponse, AxiosError>([`todos_${token}`, token], async () => {
         const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/todos`, config)
         return response.data
     }, {
         enabled: !!token,
         refetchOnWindowFocus: true,
-        staleTime: 60 * 1000
+        refetchInterval: 5000
     })
 
     const { mutate: createTodo } = useMutation({
@@ -40,17 +40,31 @@ const useTodoList = (token: string | null | undefined) => {
         },
         onError: (error: AxiosError) => {
             console.error(error)
+        },
+        onSuccess: () => {
+            refetch()
         }
 
     })
 
     const { mutate: updateTodo } = useMutation({
         mutationFn: async (todo: TodoUpdate) => {
-            const response = await axios.patch(`${import.meta.env.VITE_SERVER_URL}/todos`, todo, config)
+
+            const normalizedTodo: TodoUpdate = {
+                id: todo.id,
+                title: todo.title,
+                completed: todo.completed,
+                description: todo.description
+            }
+
+            const response = await axios.patch(`${import.meta.env.VITE_SERVER_URL}/todos`, normalizedTodo, config)
             return response.data
         },
         onError: (error: AxiosError) => {
             console.error(error)
+        },
+        onSuccess: () => {
+            refetch()
         }
     })
 
@@ -61,6 +75,9 @@ const useTodoList = (token: string | null | undefined) => {
         },
         onError: (error: AxiosError) => {
             console.error(error)
+        },
+        onSuccess: () => {
+            refetch()
         }
     })
 
