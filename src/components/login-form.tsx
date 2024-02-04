@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
+import { useMutation } from 'react-query'
+import axios, { AxiosError } from 'axios'
 
 export default function LoginForm() {
     const formSchema = z.object({
@@ -13,13 +15,33 @@ export default function LoginForm() {
         email: z.string().email(),
     })
 
+    const mutation = useMutation({
+        mutationFn: (values: z.infer<typeof formSchema>) => {
+            return axios.post<{ accessToken: string }>('http://localhost:3000/login', values)
+                .then(response => response.data)
+        },
+        onSuccess: (data) => {
+            const token = data.accessToken
+            localStorage.setItem('token', token)
+            alert('Logado com sucesso')
+        },
+        onError: (error) => {
+            localStorage.removeItem('token')
+            console.log(error)
+            if (error instanceof AxiosError) {
+                if (error.response?.data.message === 'Email or password invalid') {
+                    alert('Email ou senha inválidos')
+                }
+            }
+        }
+    })
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        alert(JSON.stringify(values, null, 2))
-        console.log(values)
+        mutation.mutate(values)
     }
 
     return (
