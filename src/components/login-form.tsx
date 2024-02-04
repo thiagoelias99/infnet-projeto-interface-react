@@ -8,6 +8,10 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import { useMutation } from 'react-query'
 import axios, { AxiosError } from 'axios'
+import { useToast } from './ui/use-toast'
+import { Loader2Icon } from 'lucide-react'
+import { Checkbox } from './ui/checkbox'
+import { useState } from 'react'
 
 export default function LoginForm() {
     const formSchema = z.object({
@@ -15,23 +19,60 @@ export default function LoginForm() {
         email: z.string().email(),
     })
 
-    const mutation = useMutation({
+    const [keepConnected, setKeepConnected] = useState(false)
+
+    const { toast } = useToast()
+
+    const { mutate, isLoading } = useMutation({
         mutationFn: (values: z.infer<typeof formSchema>) => {
-            return axios.post<{ accessToken: string }>('http://localhost:3000/login', values)
+            return axios.post<{ accessToken: string }>(`${import.meta.env.VITE_SERVER_URL}/login`, values)
                 .then(response => response.data)
         },
         onSuccess: (data) => {
             const token = data.accessToken
-            localStorage.setItem('token', token)
-            alert('Logado com sucesso')
+
+            if (keepConnected) {
+                localStorage.setItem('token', token)
+            } else {
+                sessionStorage.setItem('token', token)
+                localStorage.removeItem('token')
+            }
+
+            toast({
+                variant: 'default',
+                title: 'Login realizado com sucesso!',
+            })
         },
         onError: (error) => {
             localStorage.removeItem('token')
             console.log(error)
             if (error instanceof AxiosError) {
                 if (error.response?.data.message === 'Email or password invalid') {
-                    alert('Email ou senha inválidos')
+                    toast({
+                        variant: 'destructive',
+                        title: 'Email ou senha inválidos!',
+                    })
+                } else if (error.message === 'Network Error') {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Erro ao conectar no servidor!',
+                    })
+                } else if (error.response?.status === 500) {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Erro interno no servidor!',
+                    })
+                } else {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Erro ao realizar login!',
+                    })
                 }
+            } else {
+                toast({
+                    variant: 'destructive',
+                    title: 'Erro ao realizar login!',
+                })
             }
         }
     })
@@ -41,7 +82,7 @@ export default function LoginForm() {
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        mutation.mutate(values)
+        mutate(values)
     }
 
     return (
@@ -79,12 +120,24 @@ export default function LoginForm() {
                                 </FormItem>
                             )}
                         />
-                        <div className="mt-8"></div>
+                        <div className="flex items-center justify-end space-x-2">
+                            <Checkbox id="terms" checked={keepConnected} onCheckedChange={(() => setKeepConnected(!keepConnected))} />
+                            <label
+                                htmlFor="terms"
+                                className="text-xs font-medium cursor-pointer text-gray-500 hover:text-gray-700"
+                            >
+                                Permanecer conectado?
+                            </label>
+                        </div>
+                        <div className="pt-4"></div>
                         <Button
                             type="submit"
                             variant='default'
-                            className='w-full mt-4'
-                        >Entrar</Button>
+                            className='w-full mt-6 flex justify-center items-center gap-4'
+                            disabled={isLoading}
+                        >
+                            <Loader2Icon className={`w-6 h-6 animate-spin ${isLoading ? 'block' : 'hidden'}`} />
+                            Entrar</Button>
                     </form>
                 </Form>
             </CardContent>

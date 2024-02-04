@@ -12,8 +12,16 @@ import { PasswordInput } from '@/components/ui/password-input'
 import { useEffect } from 'react'
 import useBrazilState from '@/hooks/useCity.ts'
 import { isBefore } from 'date-fns'
+import { useMutation } from 'react-query'
+import axios, { AxiosError } from 'axios'
+import { useToast } from './ui/use-toast'
+import { Loader2Icon } from 'lucide-react'
 
-export default function SignUpForm() {
+interface SignUpFormProps {
+    setShowSignUp: (showSignUp: boolean) => void
+}
+
+export default function SignUpForm({ setShowSignUp }: SignUpFormProps) {
     const statesOptions = brasilStates.map((state) => ({
         label: state.nome,
         value: state.sigla,
@@ -35,12 +43,57 @@ export default function SignUpForm() {
         theme: z.string().min(2).max(50).default('default')
     })
 
+    const { toast } = useToast()
+
+    const { mutate, isLoading } = useMutation({
+        mutationFn: (values: z.infer<typeof formSchema>) => {
+            const { confirmPassword, ...rest } = values
+            return axios.post<{ id: string }>(`${import.meta.env.VITE_SERVER_URL}/signup`, { ...rest })
+                .then(response => response.data)
+        },
+        onSuccess: (data) => {
+            toast({
+                variant: 'default',
+                title: 'Cadastro realizado com sucesso!',
+            })
+            setShowSignUp(false)
+        },
+        onError: (error) => {
+            console.log(error)
+            if (error instanceof AxiosError) {
+                if (error.response?.data.message.includes('email already exists.')) {
+                    alert('Email já cadastrado')
+                } else if (error.message === 'Network Error') {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Erro ao conectar no servidor!',
+                    })
+                } else if (error.response?.status === 500) {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Erro interno no servidor!',
+                    })
+                } else {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Erro ao realizar login!',
+                    })
+                }
+            } else {
+                toast({
+                    variant: 'destructive',
+                    title: 'Erro ao realizar login!',
+                })
+            }
+        }
+    })
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        alert(JSON.stringify(values, null, 2))
+        mutate(values)
     }
 
     const { data: cities, refetch } = useBrazilState(form.getValues().state)
@@ -161,8 +214,11 @@ export default function SignUpForm() {
                         <Button
                             type="submit"
                             variant='default'
-                            className='w-full mt-4 col-span-2'
-                        >Cadastrar</Button>
+                            className='w-full mt-6 flex justify-center items-center gap-4 col-span-2'
+                            disabled={isLoading}
+                        >
+                            <Loader2Icon className={`w-6 h-6 animate-spin ${isLoading ? 'block' : 'hidden'}`} />
+                            Entrar</Button>
                     </form>
                 </Form>
             </CardContent>
