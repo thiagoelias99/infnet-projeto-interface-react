@@ -18,7 +18,10 @@ interface DialogProps {
 
 export function DeleteTodoDialog({ open, onOpenChange, deleteFunction, todo }: DialogProps) {
 
-    if (!todo) return onOpenChange()
+    if (!todo) {
+        onOpenChange()
+        return <></>
+    }
 
     const handleDeleteTodo = () => {
         deleteFunction(todo.id)
