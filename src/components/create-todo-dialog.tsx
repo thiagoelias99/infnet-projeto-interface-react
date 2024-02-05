@@ -63,7 +63,7 @@ export function CreateTodoDialog({ open, onOpenChange, createFunction }: CreateT
         setTitle('')
         setDescription('')
         onOpenChange()
-        createFunction({ title, description, completed: false })
+        createFunction({ title, description })
     }
 
     return (

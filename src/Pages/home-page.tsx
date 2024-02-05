@@ -2,7 +2,7 @@ import useToken from '@/hooks/useToken'
 import useUserProfile from '@/hooks/useUserProfile'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2Icon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { Loader2Icon, PlusIcon, Trash2Icon, LogOutIcon } from 'lucide-react'
 import logo from '../assets/logo.jpeg'
 import useTodoList, { Todo, TodoCreate, TodoUpdate } from '@/hooks/useTodoList'
 import { Button } from '@/components/ui/button'
@@ -14,19 +14,21 @@ export default function HomePage() {
     const [showDialog, setShowDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [todo, setTodo] = useState<Todo | null>(null)
-    const { token } = useToken()
+    const { token, setToken } = useToken()
     const navigate = useNavigate()
-    const { data: userData } = useUserProfile(token)
+    const { data: userData, isError } = useUserProfile(token)
     const { todoList, updateTodo, createTodo, deleteTodo } = useTodoList(token)
 
     useEffect(() => {
-        console.log('Token:', token)
         if (!token) {
             if (token === null) {
                 navigate('/login')
             }
         }
-    }), [token]
+        if(isError) {
+            handleLogout()
+        }
+    }), [token, isError]
 
     function handleUpdateTodo(todo: TodoUpdate) {
         updateTodo({ ...todo, completed: !todo.completed })
@@ -45,10 +47,21 @@ export default function HomePage() {
         deleteTodo(id)
     }
 
+    function handleLogout() {
+        localStorage.removeItem('token')
+        sessionStorage.removeItem('token')
+        setToken(null)
+    }
+
     return (
         <main className='w-screen h-screen flex flex-col items-start justify-start'>
-            <div className='w-full h-[72px] bg-primary flex items-center justify-start px-4'>
+            <div className='w-full h-[72px] bg-primary flex items-center justify-between px-4'>
                 <img src={logo} alt="logo" className='h-[100%]' />
+                <Button size='icon'
+                    onClick={handleLogout}
+                >
+                    <LogOutIcon className='text-white' />
+                </Button>
             </div>
             {!userData && (
                 <div className='w-full h-full flex flex-col items-center justify-center'>
