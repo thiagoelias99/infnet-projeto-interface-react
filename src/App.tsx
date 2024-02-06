@@ -3,6 +3,8 @@ import HomePage from './Pages/home-page'
 import LoginPage from './Pages/login-page'
 
 export default function App() {
+    fetch(import.meta.env.VITE_SERVER_URL)
+    
     return (
         <BrowserRouter>
             <Routes>
