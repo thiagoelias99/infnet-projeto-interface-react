@@ -25,7 +25,7 @@ export default function HomePage() {
                 navigate('/login')
             }
         }
-        if(isError) {
+        if (isError) {
             handleLogout()
         }
     }), [token, isError]
@@ -55,22 +55,24 @@ export default function HomePage() {
 
     return (
         <main className='w-screen h-screen flex flex-col items-start justify-start'>
-            <div className='w-full h-[72px] bg-primary flex items-center justify-between px-4'>
-                <img src={logo} alt="logo" className='h-[100%]' />
-                <Button size='icon'
-                    onClick={handleLogout}
-                >
-                    <LogOutIcon className='text-white' />
-                </Button>
+            <div className='w-full h-[72px] bg-primary px-4'>
+                <div className='w-full sm:max-w-[720px] sm:mx-auto h-full bg-primary flex items-center justify-between'>
+                    <img src={logo} alt="logo" className='h-[100%]' />
+                    <Button size='icon'
+                        onClick={handleLogout}
+                    >
+                        <LogOutIcon className='text-white' />
+                    </Button>
+                </div>
             </div>
             {!userData && (
-                <div className='w-full h-full flex flex-col items-center justify-center'>
+                <div className='w-full sm:max-w-[720px] sm:mx-auto h-full flex flex-col items-center justify-center'>
                     <Loader2Icon className='w-10 h-10 animate-spin text-primary' />
                     <p className='italic font-semibold mt-2'>Carregando...</p>
                 </div>
             )}
             {userData && (
-                <div className='w-full p-4 flex flex-col'>
+                <div className='w-full sm:max-w-[720px] sm:mx-auto p-4 flex flex-col'>
                     <p className='text-lg font-semibold'
                     >{`Olá ${userData.firstName} ${userData.lastName}`}</p>
                     <div className='w-full mt-4 border-2 border-primary rounded flex flex-col'>
@@ -78,7 +80,8 @@ export default function HomePage() {
                             <h2 className='text-primary-foreground font-semibold '>{`Meus To-Dos (${todoList?.count || 0})`}</h2>
                             <PlusIcon
                                 onClick={() => setShowDialog(true)}
-                                className='text-primary-foreground mx-1' />
+                                className='text-primary-foreground mx-1 cursor-pointer'
+                            />
                         </div>
                         {todoList?.count === 0 && (
                             <div className='p-2 w-full flex flex-col items-center justify-start'>
@@ -104,7 +107,7 @@ export default function HomePage() {
                                         </div>
                                         <Trash2Icon
                                             size={20}
-                                            className='text-destructive'
+                                            className='text-destructive cursor-pointer'
                                             onClick={() => handleDeleteButton(todo)}
                                         />
                                     </div>
