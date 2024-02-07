@@ -3,6 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://main--telias-todo.netlify.app/",
+  "author": {
+    "name": "Thiago Elias",
+    "email": "thiagoelias.engdev@gmail.com"
+  },
   "scripts": {
     "dev": "vite",
     "host": "vite --host",
