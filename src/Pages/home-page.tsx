@@ -13,7 +13,9 @@ import { DeleteTodoDialog } from '@/components/delete-todo-dialog'
 export default function HomePage() {
     const [showDialog, setShowDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [showCompleted, setShowCompleted] = useState(true)
     const [todo, setTodo] = useState<Todo | null>(null)
+    const [todoToShow, setTodoToShow] = useState<Todo[] | null>(null)
     const { token, setToken } = useToken()
     const navigate = useNavigate()
     const { data: userData, isError } = useUserProfile(token)
@@ -29,6 +31,14 @@ export default function HomePage() {
             handleLogout()
         }
     }), [token, isError]
+
+    useEffect(() => {
+        if (showCompleted) {
+            setTodoToShow(todoList?.items || [])
+        } else {
+            setTodoToShow(todoList?.items.filter(todo => !todo.completed) || [])
+        }
+    }, [showCompleted, todoList])
 
     function handleUpdateTodo(todo: TodoUpdate) {
         updateTodo({ ...todo, completed: !todo.completed })
@@ -75,9 +85,22 @@ export default function HomePage() {
                 <div className='w-full sm:max-w-[720px] sm:mx-auto p-4 flex flex-col'>
                     <p className='text-lg font-semibold'
                     >{`Olá ${userData.firstName} ${userData.lastName}`}</p>
-                    <div className='w-full mt-4 border-2 border-primary rounded flex flex-col'>
+                    <div className="flex items-center space-x-2 self-end">
+                        <Checkbox
+                            id="showCompleted"
+                            checked={showCompleted}
+                            onCheckedChange={() => setShowCompleted(!showCompleted)}
+                        />
+                        <label
+                            htmlFor="showCompleted"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            Mostrar concluídos?
+                        </label>
+                    </div>
+                    <div className='w-full mt-1 border-2 border-primary rounded flex flex-col'>
                         <div className='w-full flex p-2 items-center justify-between bg-primary'>
-                            <h2 className='text-primary-foreground font-semibold '>{`Meus To-Dos (${todoList?.count || 0})`}</h2>
+                            <h2 className='text-primary-foreground font-semibold '>{`Meus To-Dos (${todoToShow?.length || 0})`}</h2>
                             <PlusIcon
                                 onClick={() => setShowDialog(true)}
                                 className='text-primary-foreground mx-1 cursor-pointer'
@@ -94,7 +117,7 @@ export default function HomePage() {
                             </div>
                         )}
                         <div className='px-2 py-4 w-full flex flex-col gap-4'>
-                            {todoList?.items.map(todo => {
+                            {todoToShow?.map(todo => {
                                 return (
                                     <div key={todo.id} className='w-full flex items-center justify-start gap-4'>
                                         <Checkbox
