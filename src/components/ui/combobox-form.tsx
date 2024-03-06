@@ -77,7 +77,7 @@ export function ComboboxForm({ label, fieldName, className, form, options }: Com
                             </PopoverTrigger>
                             <PopoverContent className="w-full p-0">
                                 <Command>
-                                    <CommandInput placeholder="Buscar estado" />
+                                    <CommandInput placeholder="Buscar..." />
                                     <CommandEmpty>Não encontrado</CommandEmpty>
                                     <CommandGroup>
                                         <ScrollArea className="h-[360px] w-full pb-4">
