@@ -1,9 +1,7 @@
 import useToken from '@/hooks/useToken'
 import useUserProfile from '@/hooks/useUserProfile'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Loader2Icon, PlusIcon, Trash2Icon, LogOutIcon } from 'lucide-react'
-import logo from '../assets/logo.jpeg'
+import { Loader2Icon, PlusIcon, Trash2Icon } from 'lucide-react'
 import useTodoList, { Todo, TodoCreate, TodoUpdate } from '@/hooks/useTodoList'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -16,21 +14,21 @@ export default function HomePage() {
     const [showCompleted, setShowCompleted] = useState(true)
     const [todo, setTodo] = useState<Todo | null>(null)
     const [todoToShow, setTodoToShow] = useState<Todo[] | null>(null)
-    const { token, setToken } = useToken()
-    const navigate = useNavigate()
-    const { data: userData, isError } = useUserProfile(token)
+    const { token } = useToken()
+    // const navigate = useNavigate()
+    const { data: userData } = useUserProfile(token)
     const { todoList, updateTodo, createTodo, deleteTodo } = useTodoList(token)
 
-    useEffect(() => {
-        if (!token) {
-            if (token === null) {
-                navigate('/login')
-            }
-        }
-        if (isError) {
-            handleLogout()
-        }
-    }), [token, isError]
+    // useEffect(() => {
+    //     if (!token) {
+    //         if (token === null) {
+    //             navigate('/login')
+    //         }
+    //     }
+    //     if (isError) {
+    //         handleLogout()
+    //     }
+    // }), [token, isError]
 
     useEffect(() => {
         if (showCompleted) {
@@ -57,15 +55,15 @@ export default function HomePage() {
         deleteTodo(id)
     }
 
-    function handleLogout() {
-        localStorage.removeItem('token')
-        sessionStorage.removeItem('token')
-        setToken(null)
-    }
+    // function handleLogout() {
+    //     localStorage.removeItem('token')
+    //     sessionStorage.removeItem('token')
+    //     setToken(null)
+    // }
 
     return (
         <main className='w-screen h-screen flex flex-col items-start justify-start'>
-            <div className='w-full h-[72px] bg-primary px-4'>
+            {/* <div className='w-full h-[72px] bg-primary px-4'>
                 <div className='w-full sm:max-w-[720px] sm:mx-auto h-full bg-primary flex items-center justify-between'>
                     <img src={logo} alt="logo" className='h-[100%]' />
                     <Button size='icon'
@@ -74,7 +72,7 @@ export default function HomePage() {
                         <LogOutIcon className='text-white' />
                     </Button>
                 </div>
-            </div>
+            </div> */}
             {!userData && (
                 <div className='w-full sm:max-w-[720px] sm:mx-auto h-full flex flex-col items-center justify-center'>
                     <Loader2Icon className='w-10 h-10 animate-spin text-primary' />
